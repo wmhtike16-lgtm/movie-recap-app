@@ -6,14 +6,19 @@ st.set_page_config(page_title="Movie Recap App")
 
 st.title("🎬 Movie Recap App")
 
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+# API KEY စစ်
+api_key = os.getenv("GEMINI_API_KEY")
+
+if not api_key:
+    st.error("❌ GEMINI_API_KEY မတွေ့ပါ။ GitHub Secrets မှာ မထည့်ရသေးပါ။")
+    st.stop()
+
+genai.configure(api_key=api_key)
 
 model = genai.GenerativeModel("gemini-1.5-flash")
 
-st.write("YouTube transcript ကို အောက်မှာ paste လုပ်ပါ")
-
 transcript = st.text_area(
-    "Transcript",
+    "YouTube Transcript",
     height=300,
     placeholder="ဒီမှာ YouTube transcript ကို paste လုပ်ပါ..."
 )
@@ -22,10 +27,11 @@ if st.button("Generate Movie Recap"):
     if transcript.strip() == "":
         st.warning("Transcript မထည့်ရသေးပါ")
     else:
-        with st.spinner("AI က စာရေးနေပါတယ်..."):
-            prompt = f"""
+        try:
+            with st.spinner("AI က စာရေးနေပါတယ်..."):
+                prompt = f"""
 မင်းက professional Movie Recap narrator ဖြစ်တယ်။
-အောက်က YouTube transcript ကို
+အောက်က transcript ကို
 မြန်မာဘာသာနဲ့
 စိတ်လှုပ်ရှားဖွယ် Movie Recap style နဲ့
 ဇာတ်လမ်းပြောသလို ပြန်ရေးပါ။
@@ -33,7 +39,11 @@ if st.button("Generate Movie Recap"):
 Transcript:
 {transcript}
 """
-            response = model.generate_content(prompt)
+                response = model.generate_content(prompt)
 
             st.subheader("🎥 Movie Recap Script (Myanmar)")
             st.write(response.text)
+
+        except Exception as e:
+            st.error("❌ AI မှာ အမှားဖြစ်နေပါတယ်")
+            st.code(str(e))
