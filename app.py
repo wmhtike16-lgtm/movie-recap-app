@@ -2,51 +2,39 @@ import streamlit as st
 import google.generativeai as genai
 import os
 
+# 🔑 API Key (Streamlit Secrets ကနေယူ)
+genai.configure(api_key=os.environ["GOOGLE_API_KEY"])
+
 st.set_page_config(page_title="Movie Recap App")
-
 st.title("🎬 Movie Recap App")
-
-# API KEY စစ်
-api_key = os.getenv("GEMINI_API_KEY")
-
-if not api_key:
-    st.error("❌ GEMINI_API_KEY မတွေ့ပါ။ GitHub Secrets မှာ မထည့်ရသေးပါ။")
-    st.stop()
-
-genai.configure(api_key=api_key)
-
-model = genai.GenerativeModel("models/gemini-1.0-pro")
-
-
-
+st.write("YouTube transcript ကို အောက်မှာ paste လုပ်ပါ")
 
 transcript = st.text_area(
-    "YouTube Transcript",
+    "Transcript",
     height=300,
     placeholder="ဒီမှာ YouTube transcript ကို paste လုပ်ပါ..."
 )
 
-if st.button("Generate Movie Recap"):
+if st.button("Generate Recap"):
     if transcript.strip() == "":
         st.warning("Transcript မထည့်ရသေးပါ")
     else:
-        try:
-            with st.spinner("AI က စာရေးနေပါတယ်..."):
+        with st.spinner("AI စာရေးနေပါတယ်..."):
+            try:
+                model = genai.GenerativeModel("gemini-1.5-pro")
+
                 prompt = f"""
-မင်းက professional Movie Recap narrator ဖြစ်တယ်။
-အောက်က transcript ကို
-မြန်မာဘာသာနဲ့
-စိတ်လှုပ်ရှားဖွယ် Movie Recap style နဲ့
-ဇာတ်လမ်းပြောသလို ပြန်ရေးပါ။
+You are a professional movie recap writer.
+Rewrite the following transcript into an exciting,
+storytelling Burmese (Myanmar) movie recap.
 
 Transcript:
 {transcript}
 """
+
                 response = model.generate_content(prompt)
+                st.success("ပြီးပါပြီ 🎉")
+                st.write(response.text)
 
-            st.subheader("🎥 Movie Recap Script (Myanmar)")
-            st.write(response.text)
-
-        except Exception as e:
-            st.error("❌ AI မှာ အမှားဖြစ်နေပါတယ်")
-            st.code(str(e))
+            except Exception as e:
+                st.error(f"❌ AI မှာ အမှားဖြစ်နေပါတယ်\n\n{e}")
