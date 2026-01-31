@@ -1,14 +1,9 @@
 import streamlit as st
 import google.generativeai as genai
 
-# ===============================
-# 🔑 Google API Key (Streamlit Secrets)
-# ===============================
+# Google API Key (Streamlit Secrets)
 genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
 
-# ===============================
-# 🎬 Streamlit UI
-# ===============================
 st.set_page_config(page_title="Movie Recap App")
 st.title("🎬 Movie Recap App")
 st.write("YouTube transcript ကို အောက်မှာ paste လုပ်ပါ")
@@ -19,17 +14,14 @@ transcript = st.text_area(
     placeholder="ဒီမှာ YouTube transcript ကို paste လုပ်ပါ..."
 )
 
-# ===============================
-# 🤖 AI Processing
-# ===============================
 if st.button("Generate Recap"):
     if transcript.strip() == "":
         st.warning("Transcript မထည့်ရသေးပါ")
     else:
         with st.spinner("AI စာရေးနေပါတယ်..."):
             try:
-                # ✅ Streamlit Cloud မှာ အလုပ်လုပ်တဲ့ model
-                model = genai.GenerativeModel("text-bison-001")
+                # ✅ ဒီ model က google-generativeai 0.5.4 နဲ့ အလုပ်လုပ်
+                model = genai.GenerativeModel("gemini-1.5-flash")
 
                 prompt = f"""
 Rewrite the following movie transcript into an exciting,
