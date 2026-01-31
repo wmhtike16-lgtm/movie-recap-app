@@ -16,7 +16,6 @@ if not api_key:
 genai.configure(api_key=api_key)
 
 model = genai.GenerativeModel("model = genai.GenerativeModel("models/gemini-1.5-flash")
-                              ")
 
 transcript = st.text_area(
     "YouTube Transcript",
