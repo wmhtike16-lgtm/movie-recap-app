@@ -1,11 +1,15 @@
 import streamlit as st
-import google.generativeai as genai
+from openai import OpenAI
+from gtts import gTTS
+import tempfile
+import os
 
-# Google API Key (Streamlit Secrets)
-genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
+# OpenAI client
+client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 st.set_page_config(page_title="Movie Recap App")
 st.title("🎬 Movie Recap App")
+
 st.write("YouTube transcript ကို အောက်မှာ paste လုပ်ပါ")
 
 transcript = st.text_area(
@@ -20,24 +24,31 @@ if st.button("Generate Recap"):
     else:
         with st.spinner("AI စာရေးနေပါတယ်..."):
             try:
-                # ✅ ဒီ model က google-generativeai 0.5.4 နဲ့ အလုပ်လုပ်
-                model = genai.GenerativeModel("gemini-1.5-flash")
-
                 prompt = f"""
-Rewrite the following movie transcript into an exciting,
-dramatic Burmese (Myanmar) movie recap.
-Use narrator style, emotional tone, and simple Burmese.
+You are a professional movie recap writer.
+Rewrite the following transcript into an exciting,
+storytelling Burmese (Myanmar) movie recap.
 
 Transcript:
 {transcript}
 """
 
-                response = model.generate_content(prompt)
+                response = client.chat.completions.create(
+                    model="gpt-4o-mini",
+                    messages=[
+                        {"role": "user", "content": prompt}
+                    ]
+                )
 
+                recap_text = response.choices[0].message.content
                 st.success("ပြီးပါပြီ 🎉")
-                st.subheader("📜 Movie Recap Script (Burmese)")
-                st.write(response.text)
+                st.write(recap_text)
+
+                # Audio
+                tts = gTTS(recap_text, lang="my")
+                with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as fp:
+                    tts.save(fp.name)
+                    st.audio(fp.name)
 
             except Exception as e:
-                st.error("❌ AI မှာ အမှားဖြစ်နေပါတယ်")
-                st.error(e)
+                st.error(f"❌ AI မှာ အမှားဖြစ်နေပါတယ်\n\n{e}")
