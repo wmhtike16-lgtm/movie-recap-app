@@ -28,16 +28,13 @@ if st.button("Generate Recap"):
     else:
         with st.spinner("AI စာရေးနေပါတယ်..."):
             try:
-                # ⚠️ Streamlit Cloud (v1beta) မှာ အလုပ်လုပ်တဲ့ model
-                model = genai.GenerativeModel("gemini-pro")
+                # ✅ Streamlit Cloud မှာ အလုပ်လုပ်တဲ့ model
+                model = genai.GenerativeModel("text-bison-001")
 
                 prompt = f"""
-You are a professional movie recap narrator.
-
-Rewrite the following transcript into an exciting,
+Rewrite the following movie transcript into an exciting,
 dramatic Burmese (Myanmar) movie recap.
-Use storytelling style, emotional tone,
-and simple Burmese language.
+Use narrator style, emotional tone, and simple Burmese.
 
 Transcript:
 {transcript}
